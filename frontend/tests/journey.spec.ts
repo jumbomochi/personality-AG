@@ -45,7 +45,7 @@ test.describe('PsycheScale User Journey', () => {
     await page.waitForURL('**/results');
     
     // Hero Archetype section visible
-    await expect(page.getByText('Your Archetype')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Demo User')).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('The Architect')).toBeVisible();
     
     // Model tabs visible

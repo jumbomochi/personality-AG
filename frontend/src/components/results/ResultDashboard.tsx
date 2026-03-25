@@ -1,10 +1,48 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BarChart3, Download, TrendingUp, AlertTriangle, Briefcase, Zap, Brain, Target, Hexagon } from 'lucide-react';
 import { FactorChart } from './FactorChart';
 import classNames from 'classnames';
 
 export function ResultDashboard() {
   const [activeTab, setActiveTab] = useState<'mbti' | 'bigfive' | 'hexaco' | '16pf'>('mbti');
+  const location = useLocation();
+  const profile = location.state?.profile || {
+    name: "Demo User",
+    archetype: "The Architect",
+    mbti: "INTJ-A / Strategic Visionary",
+    description: "Imaginative and strategic thinkers, with a plan for everything. You navigate complex systems with ease and demand intellectual rigor.",
+    superpowers: "Strategic planning, system architecture, identifying inefficiencies, and maintaining long-term vision despite immediate chaos.",
+    burnout: "Highly repetitive administrative tasks, strict micromanagement, and environments that prioritize social harmony over objective truth.",
+    career: "Best suited for dynamic tech startups, systems engineering, strategic consulting, or academic research.",
+    traits: [
+       { name: 'Openness', score: 85, color: 'bg-purple-500', desc: 'Inventive / Curious' },
+       { name: 'Conscientiousness', score: 65, color: 'bg-emerald-500', desc: 'Efficient / Organized' },
+       { name: 'Extraversion', score: 92, color: 'bg-orange-500', desc: 'Outgoing / Energetic' },
+       { name: 'Agreeableness', score: 78, color: 'bg-blue-500', desc: 'Friendly / Compassionate' },
+       { name: 'Neuroticism', score: 45, color: 'bg-rose-500', desc: 'Sensitive / Nervous' },
+    ]
+  };
+
+  const handleExportJson = () => {
+    const reportData = {
+      name: profile.name,
+      archetype: profile.archetype,
+      mbti: profile.mbti,
+      traits: profile.traits,
+      timestamp: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'psychescale-report.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="max-w-6xl mx-auto font-sans mt-4 sm:mt-8 pb-20 fade-in">
@@ -18,14 +56,14 @@ export function ResultDashboard() {
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
           <div className="text-center md:text-left flex-1">
             <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/90 text-sm font-semibold tracking-widest uppercase mb-6 backdrop-blur-md border border-white/20">
-              Your Archetype
+              {profile.name}
             </span>
             <h1 className="text-5xl md:text-6xl font-heading font-extrabold text-white mb-4 tracking-tight drop-shadow-md">
-              The Architect
+              {profile.archetype}
             </h1>
-            <p className="text-indigo-200 text-xl md:text-2xl font-medium mb-2">INTJ-A / Strategic Visionary</p>
+            <p className="text-indigo-200 text-xl md:text-2xl font-medium mb-2">{profile.mbti}</p>
             <p className="text-white/70 text-lg max-w-2xl leading-relaxed mt-6">
-              Imaginative and strategic thinkers, with a plan for everything. You navigate complex systems with ease and demand intellectual rigor.
+              {profile.description}
             </p>
           </div>
           
@@ -67,7 +105,10 @@ export function ResultDashboard() {
           })}
         </div>
         
-        <button className="flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-all shadow-md group w-full sm:w-auto">
+        <button 
+          onClick={handleExportJson}
+          className="flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-all shadow-md group w-full sm:w-auto cursor-pointer"
+        >
           <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
           Export JSON Report
         </button>
@@ -82,7 +123,7 @@ export function ResultDashboard() {
               <TrendingUp className="w-6 h-6" />
             </div>
             <h3 className="font-heading font-bold text-xl text-slate-900 mb-3">Superpowers</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">Strategic planning, system architecture, identifying inefficiencies, and maintaining long-term vision despite immediate chaos.</p>
+            <p className="text-slate-600 leading-relaxed text-sm">{profile.superpowers}</p>
           </div>
 
           <div className="bg-white p-8 rounded-3xl border-t-4 border-t-rose-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col transition-transform hover:-translate-y-1">
@@ -90,7 +131,7 @@ export function ResultDashboard() {
               <AlertTriangle className="w-6 h-6" />
             </div>
             <h3 className="font-heading font-bold text-xl text-slate-900 mb-3">Burnout Triggers</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">Highly repetitive administrative tasks, strict micromanagement, and environments that prioritize social harmony over objective truth.</p>
+            <p className="text-slate-600 leading-relaxed text-sm">{profile.burnout}</p>
           </div>
 
           <div className="bg-white p-8 rounded-3xl border-t-4 border-t-blue-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col transition-transform hover:-translate-y-1">
@@ -98,7 +139,7 @@ export function ResultDashboard() {
               <Briefcase className="w-6 h-6" />
             </div>
             <h3 className="font-heading font-bold text-xl text-slate-900 mb-3">Career Alignment</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">Best suited for dynamic tech startups, systems engineering, strategic consulting, or academic research.</p>
+            <p className="text-slate-600 leading-relaxed text-sm">{profile.career}</p>
           </div>
         </div>
       )}
@@ -114,13 +155,7 @@ export function ResultDashboard() {
               
               <div className="space-y-6">
                  {/* Trait Bars */}
-                 {[
-                   { name: 'Openness', score: 85, color: 'bg-purple-500', desc: 'Inventive / Curious' },
-                   { name: 'Conscientiousness', score: 65, color: 'bg-emerald-500', desc: 'Efficient / Organized' },
-                   { name: 'Extraversion', score: 92, color: 'bg-orange-500', desc: 'Outgoing / Energetic' },
-                   { name: 'Agreeableness', score: 78, color: 'bg-blue-500', desc: 'Friendly / Compassionate' },
-                   { name: 'Neuroticism', score: 45, color: 'bg-rose-500', desc: 'Sensitive / Nervous' },
-                 ].map(trait => (
+                 {profile.traits.map((trait: any) => (
                     <div key={trait.name}>
                       <div className="flex justify-between text-sm font-bold text-slate-700 mb-2">
                         <span>{trait.name}</span>
