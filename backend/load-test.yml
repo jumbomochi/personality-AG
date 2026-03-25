@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 10
+      arrivalRate: 10
+      rampTo: 100
+      name: "Warm up API"
+    - duration: 30
+      arrivalRate: 100
+      name: "Sustained peak load (approx 1,000 concurrent over 10s)"
+  plugins:
+    metrics-by-endpoint: {}
+scenarios:
+  - name: "Score API Request"
+    flow:
+      - post:
+          url: "/api/score"
+          json:
+            model: "16pf"
+            responses: {}
+          expect:
+            - statusCode: 200
